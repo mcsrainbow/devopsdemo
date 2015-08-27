@@ -1,16 +1,18 @@
-require_os(){
+#!/bin/bash
+
+function require_os(){
   sudo yum groupinstall "Development tools"
   sudo yum install zlib-devel bzip2-devel openssl-devel ncurses-devel
   sudo yum install python-setuptools python-devel
 }
 
-require_virtualenv(){
+function require_virtualenv(){
   sudo yum install http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
   sudo yum install python-pip
   sudo easy_install virtualenv
 }
 
-require_flask(){
+function require_flask(){
   mkdir -p ~/devopsdemo
   cd ~/devopsdemo
   virtualenv flask
@@ -18,7 +20,7 @@ require_flask(){
   pip install -r flask/requirements.txt
 }
 
-require_mysql(){
+function require_mysql(){
   cd ~/devopsdemo
   . flask/bin/activate
   sudo yum install http://www.percona.com/redir/downloads/percona-release/redhat/latest/percona-release-0.1-3.noarch.rpm
@@ -28,7 +30,7 @@ require_mysql(){
   pip install mysql-python torndb
 }
 
-require_misc(){
+function require_misc(){
   cd ~/devopsdemo
   . flask/bin/activate
   pip install argparse requests paramiko
