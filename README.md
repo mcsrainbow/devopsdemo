@@ -8,7 +8,7 @@ Instruction
 `cd devopsdemo/scripts`<br>
 `./requirements.sh all`<br>
 
-3. Run the app
+3. Run the app<br>
 `cd ~/devopsdemo`<br>
 `. flask/bin/activate`<br>
 `./run.py`<br>
