@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% set active_page = "racktables" %}
+{% block content %}
+
+<form action="{{ url_for('racktables') }}" method="post">
+  {{ form.hidden_tag() }}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body">
+      <table>
+        <tr>
+          <td>{{ form.objectname(size=31, class="form-control", placeholder="hostname/objectname/rackspace") }}</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>
+            {% for subfield in form.objecttype %}
+              {% if subfield.data == 'online_mode' %}
+                {{ subfield(checked="checked") }}&nbsp;Online Mode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {% endif %}
+              {% if subfield.data == 'offline_mode' %}
+                {{ subfield }}&nbsp;Offline Mode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td>
+            {% for subfield in form.objecttype %}
+              {% if subfield.data == 'patch_panel' %}
+                {{ subfield }}&nbsp;Patch Panel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td>
+            {% for subfield in form.objecttype %}
+              {% if subfield.data == 'network_switch' %}
+                {{ subfield }}&nbsp;Network Switch&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td>
+            {% for subfield in form.objecttype %}
+              {% if subfield.data == 'network_security' %}
+                {{ subfield }}&nbsp;Network Security&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td>
+            {% for subfield in form.objecttype %}
+              {% if subfield.data == 'pdu' %}
+                {{ subfield }}&nbsp;PDU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>{{ form.rackspace(size=20, class="form-control", placeholder="rackspace") }}</td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td>{{ form.rackposition(class="form-control") }}</td>
+          </td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+      </table>
+      <tr>
+        <td>
+          <button type="submit" class="btn btn-info" name="do_action" value="help" onclick="$('#loading').show();$('#hiding').hide();">Help</button>
+          <button type="submit" class="btn btn-success" name="do_action" value="get" onclick="$('#loading').show();$('#hiding').hide();">Get</button>
+          <button type="submit" class="btn btn-success" name="do_action" value="list" onclick="$('#loading').show();$('#hiding').hide();">List</button>
+          <button type="submit" class="btn btn-success" name="do_action" value="read" onclick="$('#loading').show();$('#hiding').hide();">Read</button>
+          <button type="submit" class="btn btn-primary" name="do_action" value="write" onclick="$('#loading').show();$('#hiding').hide();">Write</button>
+          <button type="submit" class="btn btn-danger" name="do_action" value="delete" onclick="$('#loading').show();$('#hiding').hide();">Delete</button>
+        </td>
+      </tr>
+      </table>
+    </div>
+  </div>
+</form>
+
+<div id="loading" style="display:none;">
+  <input type="image" src="{{ url_for('static',filename='img/loading.gif') }}">
+</div>
+
+<div id="hiding">
+  {% if failed_cmd %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> Failed to execute command <b>'{{ cmd }}'</b></b>.
+    </div>
+    <div class="panel panel-danger">
+      <div class="panel-heading">
+        <h3 class="panel-title">Output</h3>
+      </div>
+      <div class="panel-body">
+        {% if out.stderr %}
+          <pre class="text-danger bg-danger">{{ out.stderr }}</pre>
+        {% endif %}
+        {% if out.stdout %}
+          <pre class="text-danger bg-danger">{{ out.stdout }}</pre>
+        {% endif %}
+      </div>
+    </div>
+  {% elif succeeded_cmd %}
+    <div class="alert alert-success" role="alert">
+      <b>OK:</b> Succeeded to execute command <b>'{{ cmd }}'</b></b>.
+    </div>
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h3 class="panel-title">Output</h3>
+      </div>
+      <div class="panel-body">
+        <pre class="text-success bg-success">{{ out.stdout }}</pre>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

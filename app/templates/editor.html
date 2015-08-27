@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set active_page = "editor" %}
+{% block content %}
+
+<form action="{{ url_for('editor') }}" method="post">
+  {{ form.hidden_tag() }}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body">
+      <table>
+        <tr>
+          <td>{{ form.file_path(size=40, class="form-control", placeholder="/path/to/file") }}</td>
+        </tr>
+        <tr>
+          <td>&emsp;</td>
+        </tr>
+        <tr>
+          <td>
+            <button type="submit" class="btn btn-success" name="do_action" value="read">Read</button>
+            <button type="submit" class="btn btn-primary" name="do_action" value="save">Save</button>
+          </td>
+        </tr>
+        <tr>
+          <td>&emsp;</td>
+        </tr>
+      </table>
+      {% if file_path and not file_access %}
+        <div class="alert alert-danger" role="alert">
+          <b>ERROR:</b> Cannot access {{ file_path }}: No such file or permission denied.
+        </div>
+      {% elif failed_backup %}
+        <div class="alert alert-danger" role="alert">
+          <b>ERROR:</b> Failed to backup {{ file_path }}: {{ backup_out.stderr }}
+        </div>
+      {% elif succeeded_backup %}
+        <div class="alert alert-success" role="alert">
+          <b>OK:</b> Succeeded to save changes and backuped original file as {{ file_path }}.{{ postfix }}.
+        </div>
+      {% elif file_no_change %}
+        <div class="alert alert-success" role="alert">
+          <b>OK:</b> Ignored the save request because no change has been made.
+        </div>
+      {% endif %}
+      <table>
+        <tr>
+          <td>{{ form.file_data(cols=100, rows=20, wrap="off", class="form-control", placeholder="Please input file path then click 'Read' button.") }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</form>
+{% endblock %}

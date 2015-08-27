@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% set active_page = "signup" %} 
+{% block content %}
+<form action="{{ url_for('signup') }}" method=post>
+  {{ form.hidden_tag() }}
+  <table>
+    <tr>
+      <td><b>First name:</b></td>
+      <td>{{ form.firstname(size=25, class="form-control") }}</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><b>Last name:</b></td>
+      <td>{{ form.lastname(size=25, class="form-control") }}</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><b>Email Address:</b></td>
+      <td>{{ form.email(size=25, class="form-control") }}</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><b>Password:</b></td>
+      <td>{{ form.password(size=25, class="form-control") }}</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><b>Repeat Password:&nbsp;&nbsp;</b></td>
+      <td>{{ form.confirm(size=25, class="form-control") }}</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td><button type="submit" class="btn btn-primary" name="do_action" value="create_account" >Create account</button></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+  {% for message in form.firstname.errors %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> {{ message }}
+    </div>
+  {% endfor %}
+  {% for message in form.lastname.errors %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> {{ message }}
+    </div>
+  {% endfor %}
+  {% for message in form.email.errors %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> {{ message }}
+    </div>
+  {% endfor %}
+  {% for message in form.password.errors %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> {{ message }}
+    </div>
+  {% endfor %}
+</form>
+{% endblock %}

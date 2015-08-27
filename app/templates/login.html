@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set active_page = "login" %}
+{% block content %}
+<form action="{{ url_for('login') }}" method="post">
+  {{ form.hidden_tag() }}
+  <table>
+    <tr>
+      <td><b>Email:</b></td>
+      <td>{{ form.email(size=20, class="form-control") }}</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><b>Password:&nbsp;&nbsp;</b></td>
+      <td>{{ form.password(size=20, class="form-control") }}</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>{{ form.remember_me }} Remember Me</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td><button type="submit" class="btn btn-primary" name="do_action" value="login" >Log In</button></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+  {% if failed_auth %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> Invalid Email or Password. <a href="/signup">Sign Up</a> a new account?
+    </div>
+  {% endif %}
+  {% for message in form.email.errors %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> {{ message }}
+    </div>
+  {% endfor %}
+  {% for message in form.password.errors %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> {{ message }}
+    </div>
+  {% endfor %}
+</form>
+{% endblock %}

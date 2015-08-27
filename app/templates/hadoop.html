@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% set active_page = "hadoop" %}
+{% block content %}
+
+<form action="{{ url_for('hadoop') }}" method="post">
+  {{ form.hidden_tag() }}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body">
+      <table>
+        <tr>
+          <td>{{ form.slave_hostname(size=31, class="form-control", placeholder="slave_hostname eg: sc2-hmr50") }}</td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td>
+            {{ form.master_hostname(class="form-control") }}
+          </td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+      </table>
+      <tr>
+        <td>
+          <button type="submit" class="btn btn-danger" name="do_action" value="exclude" onclick="$('#loading').show();$('#hiding').hide();">Exclude</button>
+          <button type="submit" class="btn btn-success" name="do_action" value="recover" onclick="$('#loading').show();$('#hiding').hide();">Recover</button>
+        </td>
+      </tr>
+      </table>
+    </div>
+  </div>
+</form>
+
+<div id="loading" style="display:none;">
+  <input type="image" src="{{ url_for('static',filename='img/loading.gif') }}">
+</div>
+
+<div id="hiding">
+  {% if failed_host %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> Failed to connect to host <b>{{ failed_host }}</b> port 22: Network is unreachable.
+    </div>
+  {% elif failed_auth %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> Failed to connect to host <b>{{ master_hostname }}</b> port 22: Authentication failed.
+    </div>
+  {% elif none_host %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> Please choose a <b>master_hostname</b> at first.
+    </div>
+  {% elif failed_cmd %}
+    <div class="alert alert-danger" role="alert">
+      <b>ERROR:</b> Failed to execute command <b>'{{ cmd }}'</b> on host <b>{{ master_hostname }}</b>.
+    </div>
+    <div class="panel panel-danger">
+      <div class="panel-heading">
+        <h3 class="panel-title">Output</h3>
+      </div>
+      <div class="panel-body">
+        {% if out.stderr %}
+          <pre class="text-danger bg-danger">{{ out.stderr }}</pre>
+        {% endif %}
+        {% if out.stdout %}
+          <pre class="text-danger bg-danger">{{ out.stdout }}</pre>
+        {% endif %}
+      </div>
+    </div>
+  {% elif succeeded_cmd %}
+    <div class="alert alert-success" role="alert">
+      <b>OK:</b> Succeeded to execute command <b>'{{ cmd }}'</b> on host <b>{{ master_hostname }}</b>.
+    </div>
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h3 class="panel-title">Output</h3>
+      </div>
+      <div class="panel-body">
+        <pre class="text-success bg-success">{{ out.stdout }}</pre>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

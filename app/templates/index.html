@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% set active_page = "index" %}
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+  <h1>Hi, {{ g.user.firstname }}!</h1>
+  {% for post in posts %}
+    <div><p><b>{{ post.author.nickname }} says</b>: {{ post.body }}</p></div>
+  {% endfor %}
+</div>
+{% endblock %}
