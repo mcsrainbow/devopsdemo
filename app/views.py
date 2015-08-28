@@ -229,10 +229,10 @@ def hadoop():
         if master_hostname == 'none':
             return render_template('hadoop.html',form=form,none_host=True)
 
-        if master_hostname in ['sc2-hnn1', 'rhnn1', 'iad2-hnn1']:
+        if master_hostname in ['idc1-hnn1', 'idc2-hnn1']:
             script = '/root/bin/excludedn'
 
-        if master_hostname in ['sc2-rm1', 'rrm1', 'iad2-rm1']:
+        if master_hostname in ['idc1-hrm1', 'idc2-hrm1']:
             script = '/root/bin/excludeyn'
 
         if param_do == 'exclude':

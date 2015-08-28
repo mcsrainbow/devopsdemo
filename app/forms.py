@@ -50,6 +50,6 @@ class HadoopForm(Form):
     do_action = StringField('Action')
     slave_hostname = StringField('Slave Hostname')
     choices = [('none','master_hostname'),
-               ('sc2-hnn1','sc2-hnn1'),('rhnn1','rhnn1'),('iad2-hnn1','iad2-hnn1'),
-               ('sc2-rm1','sc2-rm1'),('rrm1','rrm1'),('iad2-rm1','iad2-rm1')]
+               ('idc1-hnn1','idc1-hnn1'),('idc2-hnn1','idc2-hnn1'),
+               ('idc1-hrm1','idc1-hrm1'),('idc2-hrm1','idc2-hrm1')]
     master_hostname = SelectField('Master Hostname',choices=choices)
