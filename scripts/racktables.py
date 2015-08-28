@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 # Author: Dong Guo
-# Last Modified: 2015/02/26
+# Last Modified: 2015/04/30
 
 import os
 import sys
@@ -50,26 +50,41 @@ def parse_opts():
           {0} idc1-server2 -o -w -s IDC1:P1:C1:2
           {0} idc1-server2 -o -r
           {0} idc2-server1 -w -s IDC2:P2:C1:1,2
-          {0} idc2-server2 -w -s IDC2:P1:C2:34 -p left
-          {0} idc2-server3 -w -s IDC2:P1:C2:34 -p right
+          {0} idc2-server2 -w -s IDC2:P1:C2:20 -p left
+          {0} idc2-server3 -w -s IDC2:P1:C2:20 -p right
           {0} BlankIDC2P1C2U9 -b -w -s IDC2:P1:C2:9
-          {0} BlankIDC2P1C2U9 -b -d
+          {0} BlankIDC2P1C2U9 -b -r
+          {0} BlankIDC2P1C2U9 -d
           {0} IDC2:P1:C2 -l
+          {0} idc2-switch1 -n -w -s IDC2:P3:C3:30
+          {0} idc2-switch1 -n -r
+          {0} idc2-switch1 -d
+          {0} idc1-firewall1 -f -w -s IDC2:P3:C3:40
+          {0} idc1-firewall1 -f -r
+          {0} idc1-firewall1 -d
+          {0} idc2-pdu1 -u -w -s IDC2:P3:C2:32
+          {0} idc2-pdu1 -u -d
         '''.format(__file__)
         ))
-    exclusion = parser.add_mutually_exclusive_group()
     parser.add_argument('hostname', action="store", type=str)
-    exclusion.add_argument('-r', action="store_true", default=False,help='read from database')
-    exclusion.add_argument('-d', action="store_true", default=False,help='delete from database')
-    exclusion.add_argument('-w', action="store_true", default=False,help='write to database')
-    exclusion.add_argument('-l', action="store_true", default=False,help='list hosts and devices of the rackspace')
-    parser.add_argument('-o', action="store_true", default=False,help='offline mode, skip the functions "isup","sum_info"')
-    parser.add_argument('-b', action="store_true", default=False,help='set Type as PatchPanel')
+    exclusion_1 = parser.add_mutually_exclusive_group()
+    exclusion_1.add_argument('-r', action="store_true", default=False,help='read from database')
+    exclusion_1.add_argument('-d', action="store_true", default=False,help='delete from database')
+    exclusion_1.add_argument('-w', action="store_true", default=False,help='write to database')
+    exclusion_1.add_argument('-l', action="store_true", default=False,help='list hosts and devices of the rackspace')
+    exclusion_2 = parser.add_mutually_exclusive_group()
+    exclusion_2.add_argument('-o', action="store_true", default=False,help='offline mode for Type as Server')
+    exclusion_2.add_argument('-b', action="store_true", default=False,help='set Type as PatchPanel')
+    exclusion_2.add_argument('-n', action="store_true", default=False,help='set Type as NetworkSwitch')
+    exclusion_2.add_argument('-f', action="store_true", default=False,help='set Type as NetworkSecurity')
+    exclusion_2.add_argument('-u', action="store_true", default=False,help='set Type as PDU')
     parser.add_argument('-s', metavar='rackspace', type=str, help='rackspace informations')
     parser.add_argument('-p', metavar='rackposition', type=str, choices=['left','right','front','interior','back'], help='rackspace detailed position')
 
     args = parser.parse_args()
-    return {'hostname':args.hostname, 'read':args.r, 'delete':args.d, 'offline':args.o, 'blank':args.b, 'write':args.w, 'rackspace':args.s, 'rackposition':args.p, 'list':args.l }
+    return {'hostname':args.hostname, 'read':args.r, 'delete':args.d,
+            'offline':args.o, 'blank':args.b, 'switch':args.n, 'security':args.f, 'pdu':args.u,
+            'write':args.w, 'rackspace':args.s, 'rackposition':args.p, 'list':args.l }
 
 class _AttributeString(str):
     """
@@ -124,8 +139,8 @@ def run(cmd,hostname=False):
     if not hostname:
         hostname = opts['hostname']
 
-    username = "username"
-    pkey = "/home/username/.ssh/id_rsa"
+    username = "root"
+    pkey = "/root/.ssh/id_dsa"
     pkey_type = 'dsa'
 
     out = remote(cmd, hostname=hostname, username=username, pkey=pkey, pkey_type=pkey_type)
@@ -148,7 +163,7 @@ def isup(host):
     import socket
 
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    conn.settimeout(1)
+    conn.settimeout(3)
     try:
         conn.connect((host,22))
         conn.close()
@@ -226,8 +241,8 @@ class GetServerInfo(object):
         return vm_list
     
     def get_rst_on(self):
-        colo_prefix = run("""hostname -s |egrep 'idc1-|idc2-' |cut -d- -f1""")
-        xs_pool_master = colo_prefix + '-xenserver1'
+        colo_prefix = run("""hostname -s |egrep 'sc2-|iad2-' |cut -d- -f1""")
+        xs_pool_master = colo_prefix + '-vm1001'
 
         if not isup(xs_pool_master):
             return False
@@ -331,10 +346,16 @@ def read_db(info):
     rack_id = ','.join(str(i) for i in list(set(rack_id_list)))
     unit_no = ','.join(str(i) for i in list(set(unit_no_list)))
 
+    location_name = ""
+    row_name = ""
+    rack_name = ""
     for item in db.query("select location_name,row_name,name from Rack where id='{0}'".format(rack_id)):
         location_name = item.location_name
         row_name = item.row_name
         rack_name = item.name
+    if not location_name or not row_name or not rack_name:
+        print "Object:{0} does not have location info".format(info['hostname'])
+        return False
     print "RACKSPACE:   {0}:{1}:{2}:{3}".format(location_name,row_name,rack_name,unit_no)
 
     # close db
@@ -453,8 +474,8 @@ def update_db(info):
     # end
     return True
 
-def update_blank_offline(info):
-    """Automate server autodir for PatchPanel into Racktables or as offline mode"""
+def update_blank_switch_security_pdu_offline(info):
+    """Automate server autodir for PatchPanel/NetworkSwitch/NetworkSecurity/PDU into Racktables or as offline mode"""
 
     # connect to racktables db
     db = Connection(rt_server,rt_dbname,rt_dbuser,rt_dbpass)
@@ -466,6 +487,15 @@ def update_blank_offline(info):
     url = """http://{0}/racktables/index.php?module=redirect&page=depot&tab=addmore&op=addObjects""".format(rt_server)
     if opts['blank']:
         payload = """0_object_type_id=9&0_object_name={0}&0_object_label=&0_object_asset_no={0}&got_fast_data=Go%21"""\
+                  .format(info['hostname'])
+    if opts['switch']:
+        payload = """0_object_type_id=8&0_object_name={0}&0_object_label=&0_object_asset_no={0}&got_fast_data=Go%21"""\
+                  .format(info['hostname'])
+    if opts['security']:
+        payload = """0_object_type_id=798&0_object_name={0}&0_object_label=&0_object_asset_no={0}&got_fast_data=Go%21"""\
+                  .format(info['hostname'])
+    if opts['pdu']:
+        payload = """0_object_type_id=2&0_object_name={0}&0_object_label=&0_object_asset_no={0}&got_fast_data=Go%21"""\
                   .format(info['hostname'])
     if opts['offline']:
         payload = """0_object_type_id=4&0_object_name={0}&0_object_label=&0_object_asset_no={0}&got_fast_data=Go%21"""\
@@ -626,7 +656,8 @@ if __name__=='__main__':
         sys.exit(1)
     opts = parse_opts()
 
-    if not opts['blank'] and not opts['list'] and not opts['offline']:
+    if not opts['list'] and not opts['delete'] and not opts['blank'] and not opts['switch'] and not opts['security'] \
+       and not opts['pdu'] and not opts['offline']:
         # check if host is up
         hostup = isup(opts['hostname'])
         
@@ -639,6 +670,11 @@ if __name__=='__main__':
  
             # update racktables
             if opts['write']:
+                if info['server_type'] in ["Server","XenServer"]:
+                    print "========================================"
+                    print "Getting informations from DB..."
+                    print "========================================"
+                read_db(info)
                 print "========================================"
                 print "Updating racktables..." 
                 print "========================================"
@@ -647,12 +683,12 @@ if __name__=='__main__':
             info = {'hostname':opts['hostname']}
     else:
         info = {'hostname':opts['hostname']}
-        if opts['blank'] or opts['offline']:
+        if opts['blank'] or opts['switch'] or opts['security'] or opts['offline'] or opts['pdu']:
             if opts['write']:
                 print "========================================"
                 print "Updating racktables..." 
                 print "========================================"
-                update_blank_offline(info) 
+                update_blank_switch_security_pdu_offline(info)
         if opts['list']:
             print "========================================"
             print "Getting objects in rackspace:'{0}'...".format(opts['hostname'])
