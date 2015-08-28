@@ -45,7 +45,6 @@ class EditorForm(Form):
     file_path = StringField('File Path', validators=[DataRequired()])
     file_data = TextAreaField('File Data')
 
-
 class HadoopForm(Form):
     do_action = StringField('Action')
     slave_hostname = StringField('Slave Hostname')
