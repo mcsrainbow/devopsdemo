@@ -15,6 +15,7 @@ cd devopsdemo/scripts
 ```
 
 #### 3. Run the app
+
 ```
 cd ~/devopsdemo
 . flask/bin/activate
