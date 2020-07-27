@@ -21,7 +21,8 @@ cd ~/devopsdemo
 ./run.py
 ```
 
-#### Screenshots
+### Screenshots
+
 ![image](screenshots/signup.png)
 
 ![image](screenshots/login.png)
