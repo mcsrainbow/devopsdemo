@@ -1,25 +1,39 @@
-Instruction
----
-1. Clone the repo<br>
-`cd ~`<br>
-`git clone https://github.com/mcsrainbow/devopsdemo`<br>
+###Instruction
 
-2. Configure the environment<br>
-`cd devopsdemo/scripts`<br>
-`./requirements.sh all`<br>
+#### 1. Clone the repo
 
-3. Run the app<br>
-`cd ~/devopsdemo`<br>
-`. flask/bin/activate`<br>
-`./run.py`<br>
+```
+cd ~
+git clone https://github.com/mcsrainbow/devopsdemo
+```
 
-Screenshots
----
-![image](screenshots/signup.png)<br>
-![image](screenshots/login.png)<br>
-![image](screenshots/index.png)<br>
-![image](screenshots/status.png)<br>
-![image](screenshots/operations.png)<br>
-![image](screenshots/racktables.png)<br>
-![image](screenshots/hadoop.png)<br>
-![image](screenshots/editor.png)<br>
+#### 2. Configure the environment
+
+```
+cd devopsdemo/scripts
+./requirements.sh all
+```
+
+#### 3. Run the app
+```
+cd ~/devopsdemo
+. flask/bin/activate
+./run.py
+```
+
+#### Screenshots
+![image](screenshots/signup.png)
+
+![image](screenshots/login.png)
+
+![image](screenshots/index.png)
+
+![image](screenshots/status.png)
+
+![image](screenshots/operations.png)
+
+![image](screenshots/racktables.png)
+
+![image](screenshots/hadoop.png)
+
+![image](screenshots/editor.png)
